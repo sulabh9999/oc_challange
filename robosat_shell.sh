@@ -104,7 +104,7 @@ function train() {
 	    latest_checkpoint=`ls $MODEL/*.pth | sort | tail -n -1`
 	    count=`ls $MODEL/*.pth | sort | wc -l`
 		epochs=${latest_checkpoint//[!0-9]/}    #extract numver from string
-		epochs=$((epochs+EPOCHS))     # add other new epochs
+		epochs=$((10#$epochs +EPOCHS))      # add other new epochs
 		rsp train --config=tanzania.toml --resume --checkpoint=$latest_checkpoint --train_dataset $PRE/train --eval_dataset $PRE/eval --epochs $epochs --out $MODEL --bs=1
 	else
 		echo "----- new checkpoints ------------"
