@@ -92,26 +92,46 @@ function preprocessing() {
 	train_set 
 }
 
+
+# get_last_checkpoint() {
+# 	if [ "$(ls -A $MODEL/*.pth)" ] 
+# 	then
+# 		echo "---last checkpoint ------"
+# 	    return `ls $MODEL/*.pth | sort | tail -n -1`
+# 	else
+# 		echo "----- no checkpoints found ------------" 
+# 		return ""   
+# 	fi
+# }
+
 ##-------------------------------------------- train ----------------------------------------------------
+
+##-------------------------------------------- train ----------------------------------------------------
+
+# !bash robosat_shell.sh train /content/drive/My\ Drive/occ_model
+# !ls "/content/drive/My Drive"
+
 function train() {
 	echo "------------ train ----------------------"
-	mkdir -p $MODEL
+	MODEL="${1}"  #"${1// /\ }"
+	echo "---train model path: $MODEL------"
+	# echo $MODEL
+	mkdir -p "${MODEL}"
 
-	if [ "$(ls -A $MODEL/*.pth)" ] 
+	if [ "$(ls -A "${MODEL}"/*.pth)" ] 
 	then
 		echo "---fetching checkpoint ------"
-	    ls $MODEL/*.pth | sort | head -n -5 | xargs rm -rf 
-	    latest_checkpoint=`ls $MODEL/*.pth | sort | tail -n -1`
-	    count=`ls $MODEL/*.pth | sort | wc -l`
+	    ls "${MODEL}"/*.pth | sort | head -n -5 | xargs rm -rf 
+	    latest_checkpoint=`ls "${MODEL}"/*.pth | sort | tail -n -1`
+    
+	    count=`ls "${MODEL}"/*.pth | sort | wc -l`
 		epochs=${latest_checkpoint//[!0-9]/}    #extract numver from string
-		epochs=$((10#$epochs +EPOCHS))      # add other new epochs
-		rsp train --config=tanzania.toml --resume --checkpoint=$latest_checkpoint --train_dataset $PRE/train --eval_dataset $PRE/eval --epochs $epochs --out $MODEL --bs=1
+      	epochs=$((10#$epochs +EPOCHS))      # add other new epochs
+      	rsp train --config=tanzania.toml --resume --checkpoint="${latest_checkpoint}" --train_dataset $PRE/train --eval_dataset $PRE/eval --epochs $epochs --out "${MODEL}" --bs=1
 	else
-		echo "----- new checkpoints ------------"
-	    rsp train --config=tanzania.toml --train_dataset $PRE/train --eval_dataset $PRE/eval --epochs 5 --out $MODEL --bs=1
+      	echo "----- new checkpoints ------------"
+	    rsp train --config=tanzania.toml --train_dataset $PRE/train --eval_dataset $PRE/eval --epochs 5 --out "${MODEL}" --bs=1
 	fi
-
-	# # rsp train --config=tanzania.toml --train_dataset $PRE/train --eval_dataset $PRE/eval --epochs 5 --out $MODEL --bs=1
 }
 
 
@@ -119,21 +139,27 @@ function train() {
 
 
 ## -------------------------------------------- test ---------------------------------------------------
-function test_download() {
+test_download() {
+	echo "--------- test downloafing ------------------"
 	wget -nc -nv --show-progress -P $TEST/tif/ $1
 	wget -nc -nv --show-progress -P $TEST/geojson/ $2
 }
 
-function test_tile() {
-	rsp tile --zoom 20 --ts 1024,1024 --nodata_threshold 25 --rasters $TEST/tif/*tif --out $PRE/images
-	rsp cover --dir $PRE/images --out $PRE/images/cover.csv
+test_tile() {
+	echo "-----------test split tiles ----------------"
+	rsp tile --zoom 20  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $PREDICT/images
+	rsp cover --dir $PREDICT/images --out $PREDICT/images/cover.csv
+}
+
+predict() {
+	echo "-----------test predict ---------------"
+	rsp predict --config=tanzania.toml  --checkpoint `ls $MODEL/*.pth | sort | tail -n -1` --dataset $PREDICT --out $PREDICT/masks
 }
 
 function test() {
-	train
 	test_download $1 $2
 	test_tile 
-
+	predict
 }
 
 "$@"
