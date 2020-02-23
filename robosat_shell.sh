@@ -106,8 +106,6 @@ function preprocessing() {
 
 ##-------------------------------------------- train ----------------------------------------------------
 
-##-------------------------------------------- train ----------------------------------------------------
-
 # !bash robosat_shell.sh train /content/drive/My\ Drive/occ_model
 # !ls "/content/drive/My Drive"
 
@@ -121,6 +119,7 @@ function train() {
 	if [ "$(ls -A "${MODEL}"/*.pth)" ] 
 	then
 		echo "---fetching checkpoint ------"
+		# remove old models, remains only last updated 5 models
 	    ls "${MODEL}"/*.pth | sort | head -n -5 | xargs rm -rf 
 	    latest_checkpoint=`ls "${MODEL}"/*.pth | sort | tail -n -1`
     
@@ -152,14 +151,16 @@ test_tile() {
 }
 
 predict() {
+	MODEL="${3}"
 	echo "-----------test predict ---------------"
-	rsp predict --config=tanzania.toml  --checkpoint `ls $MODEL/*.pth | sort | tail -n -1` --dataset $PREDICT --out $PREDICT/masks
+	echo "--model: $MODEL"
+	rsp predict --config=tanzania.toml  --checkpoint `ls "${MODEL}"/*.pth | sort | tail -n -1` --dataset $PREDICT --out $PREDICT/masks
 }
 
 function test() {
-	test_download $1 $2
+	test_download $1 $2 $3
 	test_tile 
-	predict
+	predict $3
 }
 
 "$@"
