@@ -7,7 +7,7 @@ MODEL="model"
 TRAIN="train"
 TEST="test"
 PREDICT="predict"
-EPOCHS=10
+EPOCHS=5
 zoom=20
 batch=1
 
@@ -94,7 +94,7 @@ function preprocessing() {
 # 	if [ "$(ls -A $MODEL/*.pth)" ] 
 # 	then
 # 		echo "---last checkpoint ------"
-# 	    return `ls $MODEL/*.pth | sort | tail -n -1`
+# 	    return `ls $MODEL/*.pth | sort | tail -n -1`images
 # 	else
 # 		echo "----- no checkpoints found ------------" 
 # 		return ""   
@@ -138,6 +138,16 @@ function train() {
 
 
 ## -------------------------------------------- test ---------------------------------------------------
+test_occ_images() {
+	tif=$1
+	geo=$2
+
+	echo $1
+	echo $2
+
+	test $1 $2
+}
+
 test_download() {
 	echo "--------- test downloafing ------------------"
 	wget -nc -nv --show-progress -P $TEST/tif/ $1
