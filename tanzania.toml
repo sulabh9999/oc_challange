@@ -5,11 +5,11 @@
 
 [[classes]]
   title = "Background"
-  color = "transparent"
+  color = "black"
 
 [[classes]]
   title = "Building"
-  color = "deeppink"
+  color = "white"
 
 [[classes]]
   title = "Foundation"
