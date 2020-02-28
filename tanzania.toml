@@ -5,15 +5,15 @@
 
 [[classes]]
   title = "Background"
-  color = "black"
+  color = "#000000"
 
 [[classes]]
   title = "Building"
-  color = "white"
+  color = "#ffffff"
 
 [[classes]]
   title = "Foundation"
-  color = "white"
+  color = "$ffffff"
 
 [model]
   nn = "Albunet"
