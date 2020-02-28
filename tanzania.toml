@@ -21,7 +21,7 @@
   encoder = "resnet50"
 
 [train]
-  bs = 4
+  bs = 1
   loss = "Lovasz"
   da = {name="RGB", p=1.0}
   metrics = ["IoU", "QoD"]
