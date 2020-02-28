@@ -21,7 +21,7 @@ function config() {
 # remove previous data
 function clean() {
 	echo "----- cleaning -----"
-	rm -rf $PRE
+	rm -rf $PRE/tif $PRE/geojson $PRE/urls $PRE/train $PRE/images
 	mkdir -p $PRE/tif $PRE/geojson $PRE/urls $PRE/train
 }
 

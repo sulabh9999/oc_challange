@@ -13,7 +13,7 @@
 
 [[classes]]
   title = "Foundation"
-  color = "pink"
+  color = "white"
 
 [model]
   nn = "Albunet"
