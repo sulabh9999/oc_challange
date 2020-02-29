@@ -139,7 +139,7 @@ function train() {
 
 ## -------------------------------------------- test ---------------------------------------------------
 # test_occ_images() {
-	
+
 # }
 
 test_download() {
@@ -150,15 +150,15 @@ test_download() {
 
 test_tile() {
 	echo "-----------test split tiles ----------------"
-	neo tile --zoom 20  --ts 1024,1024  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $TEST/images
+	neo tile --zoom $zoom  --nodata_threshold 25 --rasters $TEST/tif/*.tif --out $TEST/images
 	neo cover --dir $TEST/images --out $TEST/images/cover.csv
 }
 
-test_rester() {
-	echo "--------- resterise -------------"
-	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels
-	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
-}
+# test_rester() {
+# 	echo "--------- resterise -------------"
+# 	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels
+# 	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
+# }
 
 
 # predict() {
@@ -173,7 +173,7 @@ test_rester() {
 function test() {
 	test_download $1 $2 
 	test_tile 
-	test_rester
+	# test_rester
 	# predict
 }
 
@@ -188,7 +188,7 @@ submission_download() {
 submission_tile() {
 	echo "-----------test split tiles ----------------"
 	neo tile --zoom 14  --ts 1024,1024  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $TEST/images
-	# neo cover --dir $TEST/images --out $TEST/images/cover.csv
+	neo cover --dir $TEST/images --out $TEST/images/cover.csv
 }
 
 submission_rester() {
