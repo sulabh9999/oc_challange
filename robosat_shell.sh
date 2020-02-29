@@ -9,7 +9,7 @@ TEST="test"
 PREDICT="predict"
 EPOCHS=5
 zoom=20
-batch=1
+batch=3
 
 
 function config() {
@@ -156,9 +156,17 @@ test_download() {
 
 test_tile() {
 	echo "-----------test split tiles ----------------"
-	neo tile --zoom $zoom  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $PREDICT/images
-	neo cover --dir $PREDICT/images --out $PREDICT/images/cover.csv
+	neo tile --zoom 20  --ts 1024,1024  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $TEST/images
+	neo cover --dir $TEST/images --out $TEST/images/cover.csv
 }
+
+test_rester() {
+	echo "--------- resterise -------------"
+	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels
+	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
+}
+
+
 
 predict() {
 	# MODEL="${3}"
@@ -172,7 +180,33 @@ predict() {
 function test() {
 	test_download $1 $2 
 	test_tile 
+	test_rester
 	# predict
 }
 
+
+submission_download() {
+	echo "--------- test downloafing ------------------"
+	rm -rf $TEST/tif $TEST/json $TEST/images $TEST/labels
+	wget -nc -nv --show-progress -P $TEST/tif/ $1
+	wget -nc -nv --show-progress -P $TEST/json/ $2
+}
+
+submission_tile() {
+	echo "-----------test split tiles ----------------"
+	neo tile --zoom 14  --ts 1024,1024  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $TEST/images
+	# neo cover --dir $TEST/images --out $TEST/images/cover.csv
+}
+
+submission_rester() {
+	echo "--------- resterise -------------"
+	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/json/*.json --type Building --cover $TEST/images/cover.csv --out $TEST/labels
+	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
+}
+
+submission() {
+	submission_download $1 $2
+	submission_tile
+	# submission_rester
+}
 "$@"
