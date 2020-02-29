@@ -9,11 +9,11 @@
 
 [[classes]]
   title = "Building"
-  color = "#fffffe"
+  color = "#ff00f7"
 
 [[classes]]
   title = "Foundation"
-  color = "#fffffe"
+  color = "#ff00f7"
 
 [model]
   nn = "Albunet"

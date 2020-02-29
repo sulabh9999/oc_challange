@@ -9,7 +9,7 @@ TEST="test"
 PREDICT="predict"
 EPOCHS=5
 zoom=20
-batch=1
+batch=8
 
 
 function config() {
@@ -150,7 +150,7 @@ test_download() {
 
 test_tile() {
 	echo "-----------test split tiles ----------------"
-	neo tile --zoom $zoom  --nodata_threshold 25 --rasters $TEST/tif/*.tif --out $TEST/images
+	neo tile --zoom $zoom  --bands 1,2,3 --nodata_threshold 25 --rasters $TEST/tif/*.tif --out $TEST/images
 	neo cover --dir $TEST/images --out $TEST/images/cover.csv
 }
 
@@ -202,4 +202,5 @@ submission() {
 	submission_tile
 	# submission_rester
 }
+
 "$@"
