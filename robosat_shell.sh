@@ -9,7 +9,7 @@ TEST="test"
 PREDICT="predict"
 EPOCHS=5
 zoom=20
-batch=3
+batch=1
 
 
 function config() {
@@ -138,15 +138,9 @@ function train() {
 
 
 ## -------------------------------------------- test ---------------------------------------------------
-test_occ_images() {
-	tif=$1
-	geo=$2
-
-	echo $1
-	echo $2
-
-	test $1 $2
-}
+# test_occ_images() {
+	
+# }
 
 test_download() {
 	echo "--------- test downloafing ------------------"
@@ -167,15 +161,14 @@ test_rester() {
 }
 
 
-
-predict() {
-	# MODEL="${3}"
-	echo "-----------test predict ---------------"
-	echo "--model: $MODEL..1: ${1}...2: ${2}..3: ${3}"
-	echo "${MODEL}"/*.pth
-	echo "--------------------------"
-	neo predict --config=tanzania.toml  --checkpoint `ls "${MODEL}"/*.pth | sort | tail -n -1` --dataset $PREDICT --out $PREDICT/masks
-}
+# predict() {
+# 	# MODEL="${3}"
+# 	echo "-----------test predict ---------------"
+# 	echo "--model: $MODEL..1: ${1}...2: ${2}..3: ${3}"
+# 	echo "${MODEL}"/*.pth
+# 	echo "--------------------------"
+# 	neo predict --config=tanzania.toml  --checkpoint `ls "${MODEL}"/*.pth | sort | tail -n -1` --dataset $PREDICT --out $PREDICT/masks
+# }
 
 function test() {
 	test_download $1 $2 
