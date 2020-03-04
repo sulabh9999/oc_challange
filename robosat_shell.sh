@@ -9,7 +9,7 @@ TEST="test"
 PREDICT="predict"
 EPOCHS=5
 zoom=20
-batch=8
+batch=4
 
 
 function config() {
@@ -150,15 +150,15 @@ test_download() {
 
 test_tile() {
 	echo "-----------test split tiles ----------------"
-	neo tile --zoom $zoom  --bands 1,2,3 --nodata_threshold 25 --rasters $TEST/tif/*.tif --out $TEST/images
+	neo tile --zoom $zoom --ts 1024,1024 --bands 1,2,3 --nodata_threshold 25 --rasters $TEST/tif/*.tif --out $TEST/images
 	neo cover --dir $TEST/images --out $TEST/images/cover.csv
 }
 
-# test_rester() {
-# 	echo "--------- resterise -------------"
-# 	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels
-# 	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
-# }
+test_rester() {
+	echo "--------- resterise -------------"
+	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels
+	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
+}
 
 
 # predict() {
