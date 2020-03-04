@@ -123,12 +123,12 @@ function train() {
 	    count=`ls "${MODEL}"/*.pth | sort | wc -l`
 		epochs=${latest_checkpoint//[!0-9]/}    #extract numver from string
       	epochs=$((10#$epochs +EPOCHS))      # add other new epochs
-      	neo train --config=tanzania.toml --resume --checkpoint="${latest_checkpoint}" --dataset $PRE --epochs $epochs --out "${MODEL}" --bs=1
+      	neo train --config=tanzania.toml  --ts 1024,1024 --resume --checkpoint="${latest_checkpoint}" --dataset $PRE --epochs $epochs --out "${MODEL}" --bs=$batch
 		neo eval --config=tanzania.toml --checkpoint "${latest_checkpoint}" --dataset $PRE
 	else
       	echo "----- new checkpoints ------------"
 	    latest_checkpoint=`ls "${MODEL}"/*.pth | sort | tail -n -1`
-	    neo train --config=tanzania.toml --dataset $PRE  --epochs $EPOCHS --out "${MODEL}" --bs=1
+	    neo train --config=tanzania.toml --ts 1024,1024 --dataset $PRE  --epochs $EPOCHS --out "${MODEL}" --bs=$batch
 	    neo eval --config=tanzania.toml --checkpoint "${latest_checkpoint}" --dataset $PRE
 	fi
 }
