@@ -7,9 +7,11 @@ MODEL="model"
 TRAIN="train"
 TEST="test"
 PREDICT="predict"
+WORKERS=10
 EPOCHS=5
 zoom=20
-batch=4
+batch=5
+
 
 
 function config() {
@@ -21,7 +23,7 @@ function config() {
 # remove previous data
 function clean() {
 	echo "----- cleaning -----"
-	rm -rf $PRE/tif $PRE/geojson $PRE/urls $PRE/train $PRE/images
+	rm -rf $PRE/tif $PRE/geojson $PRE/train $PRE/images
 	mkdir -p $PRE/tif $PRE/geojson $PRE/urls $PRE/train
 }
 
@@ -55,10 +57,10 @@ function train_download_tif_geojson() {
 # tif image to tiles
 function train_tile() {
 	echo "----- training tile to image -------"
-	neo tile --zoom $zoom --ts 1024,1024 --bands 1,2,3 --nodata_threshold 25 --rasters $PRE/tif/*.tif --out $PRE/images
+	neo tile --zoom=$zoom --ts 1024,1024 --nodata_threshold 25 --rasters $PRE/tif/*.tif --out $PRE/images --workers=$WORKERS
 	neo cover --dir $PRE/images --out $PRE/images/cover.csv
 	echo "--------- resterise -------------"
-	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $PRE/geojson/*.geojson --type Building --cover $PRE/images/cover.csv --out $PRE/labels
+	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $PRE/geojson/*.geojson --type Building --cover $PRE/images/cover.csv --out $PRE/labels --workers=$WORKERS
 	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
 }
 
@@ -123,13 +125,13 @@ function train() {
 	    count=`ls "${MODEL}"/*.pth | sort | wc -l`
 		epochs=${latest_checkpoint//[!0-9]/}    #extract numver from string
       	epochs=$((10#$epochs +EPOCHS))      # add other new epochs
-      	neo train --config=tanzania.toml  --ts 1024,1024 --resume --checkpoint="${latest_checkpoint}" --dataset $PRE --epochs $epochs --out "${MODEL}" --bs=$batch
-		neo eval --config=tanzania.toml --checkpoint "${latest_checkpoint}" --dataset $PRE
+      	neo train --config=tanzania.toml  --ts 1024,1024 --resume --checkpoint="${latest_checkpoint}" --dataset $PRE --epochs $epochs --out "${MODEL}" --bs=$batch --workers=$WORKERS
+		# neo eval --config=tanzania.toml --checkpoint "${latest_checkpoint}" --dataset $PRE
 	else
       	echo "----- new checkpoints ------------"
+	    neo train --config=tanzania.toml --ts 1024,1024 --dataset $PRE  --epochs $EPOCHS --out "${MODEL}" --bs=$batch --workers=$WORKERS
 	    latest_checkpoint=`ls "${MODEL}"/*.pth | sort | tail -n -1`
-	    neo train --config=tanzania.toml --ts 1024,1024 --dataset $PRE  --epochs $EPOCHS --out "${MODEL}" --bs=$batch
-	    neo eval --config=tanzania.toml --checkpoint "${latest_checkpoint}" --dataset $PRE
+	    # neo eval --config=tanzania.toml --checkpoint "${latest_checkpoint}" --dataset $PRE
 	fi
 }
 
@@ -141,6 +143,10 @@ function train() {
 # test_occ_images() {
 
 # }
+# band: 1,2,3 = webp
+# band: 1,2 = jpg
+# band: 1 = png
+# band: none = tif
 
 test_download() {
 	echo "--------- test downloafing ------------------"
@@ -150,13 +156,13 @@ test_download() {
 
 test_tile() {
 	echo "-----------test split tiles ----------------"
-	neo tile --zoom $zoom --ts 1024,1024 --bands 1,2,3 --nodata_threshold 25 --rasters $TEST/tif/*.tif --out $TEST/images
+	neo tile --zoom $zoom --ts 1024,1024 --nodata_threshold 25 --rasters $TEST/tif/*.tif --out $TEST/images --workers=$WORKERS
 	neo cover --dir $TEST/images --out $TEST/images/cover.csv
 }
 
 test_rester() {
 	echo "--------- resterise -------------"
-	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels
+	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels --workers=$WORKERS
 	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
 }
 
@@ -173,7 +179,7 @@ test_rester() {
 function test() {
 	test_download $1 $2 
 	test_tile 
-	# test_rester
+	test_rester
 	# predict
 }
 
@@ -187,7 +193,7 @@ submission_download() {
 
 submission_tile() {
 	echo "-----------test split tiles ----------------"
-	neo tile --zoom 14  --ts 1024,1024  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $TEST/images
+	neo tile --zoom $zoom  --ts 1024,1024  --nodata_threshold 25 --rasters $TEST/tif/*tif --out $TEST/images
 	neo cover --dir $TEST/images --out $TEST/images/cover.csv
 }
 
