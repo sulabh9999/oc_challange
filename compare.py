@@ -49,7 +49,7 @@ def show_prediction(num):
 
 if __name__ == '__main__':
   import sys
-  num = sys.argv[1]
+  num = int(sys.argv[1])
   tiff = sys.argv[2]
   geo = sys.argv[3]
   show(num, tiff, geo)

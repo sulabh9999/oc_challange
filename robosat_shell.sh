@@ -7,7 +7,7 @@ MODEL="model"
 TRAIN="train"
 TEST="test"
 PREDICT="predict"
-WORKERS=10
+WORKERS=100
 EPOCHS=5
 zoom=20
 batch=3
@@ -105,9 +105,6 @@ function preprocessing() {
 
 ##-------------------------------------------- train ----------------------------------------------------
 
-# !bash robosat_shell.sh train /content/drive/My\ Drive/occ_model
-# !ls "/content/drive/My Drive"
-
 function train() {
 	echo "------------ train ----------------------"
 	MODEL="${1}"  #"${1// /\ }"
@@ -150,6 +147,10 @@ function train() {
 
 test_download() {
 	echo "--------- test downloafing ------------------"
+
+	mkdir -p $TEST/images
+	rm -rf $TEST/geojson, $TEST/tif $TEST/masks $TEST/images
+
 	wget -nc -nv --show-progress -P $TEST/tif/ $1
 	wget -nc -nv --show-progress -P $TEST/geojson/ $2
 }
@@ -163,27 +164,26 @@ test_tile() {
 test_rester() {
 	echo "--------- resterise -------------"
 	neo rasterize --config=tanzania.toml --ts 1024,1024 --geojson $TEST/geojson/*.geojson --type Building --cover $TEST/images/cover.csv --out $TEST/labels --workers=$WORKERS
-	# neo tile --zoom 19 --bands 1,2,3 --nodata_threshold 25 --rasters train/*/*[^-]/*tif --out train/images
 }
 
 
-# predict() {
-# 	# MODEL="${3}"
-# 	echo "-----------test predict ---------------"
-# 	echo "--model: $MODEL..1: ${1}...2: ${2}..3: ${3}"
-# 	echo "${MODEL}"/*.pth
-# 	echo "--------------------------"
-# 	neo predict --config=tanzania.toml  --checkpoint `ls "${MODEL}"/*.pth | sort | tail -n -1` --dataset $PREDICT --out $PREDICT/masks
-# }
+predict() {
+	model="${1}"
+	cp "${model}" "."
+	neo predict --config=tanzania.toml --checkpoint "${model}" --dataset test --out test/masks
+}
 
 function test() {
+	config
 	test_download $1 $2 
 	test_tile 
 	test_rester
-	# predict
+	# predict "${3}"
 }
 
 
+
+# ---------------------------------- SUBMITION -----------------------------
 submission_download() {
 	echo "--------- test downloafing ------------------"
 	rm -rf $TEST/tif $TEST/json $TEST/images $TEST/labels
