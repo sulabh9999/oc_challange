@@ -10,7 +10,7 @@ PREDICT="predict"
 WORKERS=100
 EPOCHS=5
 zoom=20
-batch=3
+batch=2
 
 
 
